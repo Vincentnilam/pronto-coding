@@ -24,19 +24,12 @@ money_owned = {'Peter': 16, 'Billy': 16, 'Charlotte' :16, 'Sweedal': 16}
 # initialise players' position
 players_position = {'Peter': 0, 'Billy': 0, 'Charlotte':0, 'Sweedal': 0}
 
-place = []
-for i in data:
-    print(i)
-    place.append(i['name'])
-
-for i in range(len(place)):
-    print(place[i])
 
 player_index = 0
 roll_index = 0
 
 winner = None
-properties_owned_by_everyone = []
+
 while(winner is None):
     boolean = False
     player = players[player_index]
@@ -73,26 +66,48 @@ while(winner is None):
                 if(data[position]['name'] in properties_owned[p]):
                     owner = p
                     break
+            
             rent_price = data[position]['price']
+
             if owner != player:
+                for each in data:
+                    # in the process of counting the same colours, we omit the go.
+                    if(each['type'] == 'go'):
+                            continue
+                    if(each['colour'] == data[position]['colour']):
+                        total_same_colour_current_pos +=1
+                
+                same_colour_owned = 0
+                owned_JSON = []
+                for each_string in properties_owned[owner]:
+                    for j in data:
+                        if(j['name'] == each_string):
+                            owned_JSON.append(j)
+                for each in owned_JSON:    
+                    if(each['colour'] == data[position]['colour']):
+                        same_colour_owned+=1
+
+                if(total_same_colour_current_pos == same_colour_owned):
+                    rent_price *= 2    
                 # minus rent
                 money_owned[player] -= rent_price
                 money_owned[owner] += rent_price
-                print(player , 'pays rent to' ,owner, money_owned[player])
-                print(owner ,'got' ,money_owned[owner])
+                # print(player , 'pays rent to' ,owner, money_owned[player])
+                # print(owner ,'got' ,money_owned[owner])
         if(money_owned[player] <= 0):
             print('Winner is ',max(money_owned, key=money_owned.get))
             break            
     #print(properties_owned[player])
+    # next rolls.
     roll_index += 1
-    player_index = (player_index + 1) % 4
+    player_index = (player_index + 1) % 4  # number of players
     boolean = False
 f.close()
 
 print()
-print(money_owned)
-print(properties_owned)
-print(players_position)
+print('Money owned : ',money_owned)
+print('Properties owned : ',properties_owned)
+print('Players positions: ',players_position)
 
 
 roll.close()
