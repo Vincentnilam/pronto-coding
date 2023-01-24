@@ -37,16 +37,16 @@ roll_index = 0
 
 winner = None
 properties_owned_by_everyone = []
-boolean = False
 while(winner is None):
+    boolean = False
     player = players[player_index]
     position = players_position[player]
     total_same_colour_current_pos = 0
     # since everyone starts on GO, we just need to check go after the first roll
     data_length = len(data)
-    
-    position = (position + roll_data[roll_index])%data_length 
 
+    position = (position + roll_data[roll_index])%data_length 
+    players_position[player] = position
     # print(player, ' ',position)
     if(data[position]['type']) == 'go':
         money_owned[player] += 1
@@ -79,7 +79,10 @@ while(winner is None):
                 money_owned[player] -= rent_price
                 money_owned[owner] += rent_price
                 print(player , 'pays rent to' ,owner, money_owned[player])
-                print(owner ,'got' ,money_owned[owner])            
+                print(owner ,'got' ,money_owned[owner])
+        if(money_owned[player] <= 0):
+            print('Winner is ',max(money_owned, key=money_owned.get))
+            break            
     #print(properties_owned[player])
     roll_index += 1
     player_index = (player_index + 1) % 4
@@ -87,6 +90,9 @@ while(winner is None):
 f.close()
 
 print()
+print(money_owned)
+print(properties_owned)
+print(players_position)
 
 
 roll.close()
