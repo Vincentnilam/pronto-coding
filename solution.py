@@ -36,11 +36,12 @@ player_index = 0
 roll_index = 0
 
 winner = None
-
+properties_owned_by_everyone = []
+boolean = False
 while(winner is None):
     player = players[player_index]
     position = players_position[player]
-
+    total_same_colour_current_pos = 0
     # since everyone starts on GO, we just need to check go after the first roll
     data_length = len(data)
     
@@ -51,14 +52,38 @@ while(winner is None):
         money_owned[player] += 1
     elif(data[position]['type'] == 'property'):
         # check if the property is not owned by any players
-        if(data[position]['name'] not in properties_owned[player]):
+        for p in players: 
+            if(data[position]['name'] in properties_owned[p]):
+                boolean = True
+                break
+        if(boolean == False):
             # check if it's buyable; if it is, buy(put in properties_owned); else; bankrupt
             if(money_owned[player] >= data[position]['price']):
                 properties_owned[player].append(data[position]['name'])
                 money_owned[player] -= data[position]['price']
-
+                print(player,'buys ', data[position]['name'])
+            # bankrupt?
+            else:
+                # end game print winner.
+                print('Winner is ',max(money_owned, key=money_owned.get))
+                break
+        else:
+            owner = ''
+            for p in players:
+                if(data[position]['name'] in properties_owned[p]):
+                    owner = p
+                    break
+            rent_price = data[position]['price']
+            if owner != player:
+                # minus rent
+                money_owned[player] -= rent_price
+                money_owned[owner] += rent_price
+                print(player , 'pays rent to' ,owner, money_owned[player])
+                print(owner ,'got' ,money_owned[owner])            
     #print(properties_owned[player])
-
+    roll_index += 1
+    player_index = (player_index + 1) % 4
+    boolean = False
 f.close()
 
 print()
